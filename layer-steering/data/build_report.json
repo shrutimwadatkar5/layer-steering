@@ -1,0 +1,135 @@
+{
+  "causalab_audit": {
+    "fractions": {
+      "calibration": 0.2,
+      "construction": 0.5,
+      "evaluation": 0.3
+    },
+    "group_key": "color",
+    "keep_pair": null,
+    "max_inputs": 400,
+    "max_pairs_per_split": null,
+    "n_unique_groups": 10,
+    "per_split": {
+      "calibration": {
+        "n_after_keep_pair": 74,
+        "n_after_label_change": 74,
+        "n_final": 74,
+        "n_groups": 2,
+        "n_inputs": 80,
+        "n_paired": 80
+      },
+      "construction": {
+        "n_after_keep_pair": 189,
+        "n_after_label_change": 189,
+        "n_final": 189,
+        "n_groups": 5,
+        "n_inputs": 198,
+        "n_paired": 198
+      },
+      "evaluation": {
+        "n_after_keep_pair": 118,
+        "n_after_label_change": 118,
+        "n_final": 118,
+        "n_groups": 3,
+        "n_inputs": 122,
+        "n_paired": 122
+      }
+    },
+    "pool_generator": "generate_dataset",
+    "pool_size": 400,
+    "require_label_change": true,
+    "resample_variable": "all",
+    "seed": 42,
+    "split_order": [
+      "construction",
+      "calibration",
+      "evaluation"
+    ],
+    "target_variable": "answer"
+  },
+  "config": {
+    "allow_full_sweep": false,
+    "alphas": [
+      -2.0,
+      -1.0,
+      0.0,
+      1.0,
+      2.0
+    ],
+    "artifacts_dir": null,
+    "calibration_dataset": "mcqa_steering/calibration",
+    "construction_dataset": "mcqa_steering/construction",
+    "data_root": "research/data",
+    "dtype": "bf16",
+    "evaluation_dataset": "mcqa_steering/evaluation",
+    "group_key": "color",
+    "layers": [
+      4,
+      12,
+      20,
+      26
+    ],
+    "model_key": "Qwen/Qwen2.5-1.5B-Instruct",
+    "model_revision": "main",
+    "normalize_direction": true,
+    "output_dir": "research/results",
+    "require_label_change": true,
+    "seed": 42,
+    "split_fractions": [
+      0.5,
+      0.2,
+      0.3
+    ],
+    "token_position": {
+      "index": -1
+    }
+  },
+  "files": {
+    "calibration": "research/data/mcqa_steering/calibration.json",
+    "construction": "research/data/mcqa_steering/construction.json",
+    "evaluation": "research/data/mcqa_steering/evaluation.json"
+  },
+  "leakage": {
+    "group_key": "color",
+    "n_unique_groups": 10,
+    "n_unique_prompts": 381,
+    "rows_per_split": {
+      "calibration": 74,
+      "construction": 189,
+      "evaluation": 118
+    }
+  },
+  "symbols": {
+    "n_construction_rows": 189,
+    "n_distinct_symbols": 26,
+    "symbol_counts": {
+      "A": 14,
+      "B": 11,
+      "C": 11,
+      "D": 16,
+      "E": 16,
+      "F": 14,
+      "G": 8,
+      "H": 24,
+      "I": 12,
+      "J": 17,
+      "K": 15,
+      "L": 11,
+      "M": 19,
+      "N": 14,
+      "O": 22,
+      "P": 24,
+      "Q": 14,
+      "R": 12,
+      "S": 17,
+      "T": 18,
+      "U": 8,
+      "V": 11,
+      "W": 15,
+      "X": 11,
+      "Y": 7,
+      "Z": 17
+    }
+  }
+}

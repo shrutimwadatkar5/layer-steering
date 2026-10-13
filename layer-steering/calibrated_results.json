@@ -1,0 +1,87 @@
+{
+  "status": "calibrated pilot executed",
+  "supersedes": "pilot_results.json (the uncalibrated first pass)",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "num_layers": 28,
+  "hidden_size": 1536,
+  "split_used": "calibration (74 prompts); evaluation split untouched",
+  "layers": [4, 12, 20, 26],
+  "z_grid": [0.0, 1.0, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0],
+  "strength_convention": "alpha = z * sigma_within, sigma_within = pooled within-group sd of the activation projected onto that layer's steering direction",
+  "why": "The first pilot used a shared alpha on a unit-norm direction. Because residual norms grow with depth, the same alpha delivered 7.5x less relative dose at L26 than L4 and reached only ~0.05 sigma, below threshold. Calibrating on the within-group spread makes z mean the same dose everywhere.",
+  "calibration": {
+    "4": {"sigma_within": 2.831, "cohens_d": 0.32},
+    "12": {"sigma_within": 1.992, "cohens_d": 0.90},
+    "20": {"sigma_within": 2.759, "cohens_d": 6.59},
+    "26": {"sigma_within": 6.190, "cohens_d": 5.02}
+  },
+  "sanity_checks": {
+    "zero_strength_alpha_equals_baseline": {
+      "passed_all_layers": true,
+      "max_abs_deviation": 0.0
+    },
+    "intervention_fires": {
+      "max_abs_logit_change": 0.359375,
+      "hooked_noop_change": 0.0,
+      "repeat_run_change": 0.0
+    }
+  },
+  "baseline": {
+    "accuracy": 0.919,
+    "logit_margin_mean": 9.41,
+    "identical_across_layers": true
+  },
+  "findings": {
+    "H1_layer_dependence": {
+      "supported": true,
+      "test": "Friedman across layers at matched z, paired by prompt (n=74)",
+      "detail": [
+        {"z": 0.0, "chi2": 1.00, "p": 0.801, "note": "no difference at baseline, as required"},
+        {"z": 2.0, "chi2": 13.10, "p": 0.00443},
+        {"z": 4.0, "chi2": 11.89, "p": 0.00778},
+        {"z": 6.0, "chi2": 27.52, "p": 4.59e-06},
+        {"z": 8.0, "chi2": 38.35, "p": 2.38e-08},
+        {"z": 12.0, "chi2": 60.58, "p": 4.43e-13}
+      ],
+      "reading": "At matched dose the four layers behave differently, and the divergence grows with dose."
+    },
+    "H2_signed_effects": {
+      "partially_supported": true,
+      "detail": "Within-layer Wilcoxon vs z=0 is significant at 7 of 8 strengths for every layer (e.g. L20 z=4 p=2.3e-05). But only the z>=0 arm was swept in the calibrated run; the negative arm from the first pilot showed no asymmetry at |alpha|<=2.",
+      "caveat": "A calibrated negative arm (z<0) has not been run, so the sign-symmetry claim is untested."
+    },
+    "H3_heldout_generalization": {
+      "tested": false,
+      "reason": "evaluation split deliberately untouched"
+    },
+    "H4_cross_layer_transfer": {
+      "tested": false,
+      "reason": "not implemented"
+    }
+  },
+  "effect_sizes_at_max_z": {
+    "_note": "mean paired change in logit margin vs z=0",
+    "4": 0.192,
+    "12": 0.261,
+    "20": 2.256,
+    "26": 1.058,
+    "reading": "L20 and L26 respond ~10x more than L4 and L12 at equal dose, so layer is a first-order determinant of steering leverage."
+  },
+  "direction_quality": {
+    "cohens_d_by_layer": {"4": 0.32, "12": 0.90, "20": 6.59, "26": 5.02},
+    "reading": "the contrast is weakly separated early in the stack and strongly separated late. A single-direction-per-layer design inherits this; early-layer directions are noisy, which partly explains their small effect."
+  },
+  "limitations": [
+    "74 calibration prompts; a 0.014 accuracy granularity is one prompt",
+    "4 layers only, all on the positive z arm",
+    "counterfactual-answer rate stays at or near 0 everywhere: steering moves the margin but does not flip the 2-way argmax even at z=12",
+    "no held-out evaluation, so no generalization claim",
+    "single model, single task"
+  ],
+  "next_steps": [
+    "sweep the calibrated negative arm (z<0) to test H2 properly",
+    "extend to more layers to check whether the L4/L12 vs L20/L26 split is smooth or abrupt",
+    "run the chosen configuration once on the evaluation split",
+    "implement cross-layer transfer for H4"
+  ]
+}

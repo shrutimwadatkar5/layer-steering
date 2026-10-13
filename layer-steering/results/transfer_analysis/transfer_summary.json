@@ -1,0 +1,187 @@
+{
+  "experiment": "cross_layer_transfer",
+  "not_pooled_with_layerwise": true,
+  "n_cells": 16,
+  "same_layer": {
+    "n": 4,
+    "mean_abs_effect": 0.471706,
+    "n_significant": 4,
+    "outcomes": {
+      "successful_transfer": 3,
+      "failed_transfer_possible_misalignment": 0,
+      "intervention_induced_degradation": 1,
+      "inconclusive": 0
+    }
+  },
+  "cross_layer": {
+    "n": 12,
+    "mean_abs_effect": 0.074324,
+    "n_significant": 8,
+    "outcomes": {
+      "successful_transfer": 0,
+      "failed_transfer_possible_misalignment": 4,
+      "intervention_induced_degradation": 0,
+      "inconclusive": 8
+    }
+  },
+  "baseline_accuracy": [
+    0.918919
+  ],
+  "zero_strength_max_abs_delta": 0.0,
+  "outcomes": {
+    "successful_transfer": 3,
+    "failed_transfer_possible_misalignment": 4,
+    "intervention_induced_degradation": 1,
+    "inconclusive": 8
+  },
+  "outcome_definitions": {
+    "successful_transfer": "CI excludes zero AND the effect is at least half the same-layer reference: the source direction moved behaviour at the target layer",
+    "failed_transfer_possible_misalignment": "CI includes zero while the cell's dose was calibrated and verified: consistent with the direction not being represented at the target in a usable basis, but NOT evidence the feature is absent there",
+    "intervention_induced_degradation": "original-answer accuracy fell below baseline while the target-answer rate did not rise: the intervention disrupted the computation without redirecting it",
+    "inconclusive": "anything else, including a near-null with a wide interval"
+  },
+  "directional_asymmetry": [
+    {
+      "pair": "4<->12",
+      "forward": -0.078547,
+      "reverse": -0.050676,
+      "forward_significant": true,
+      "reverse_significant": true
+    },
+    {
+      "pair": "4<->20",
+      "forward": -0.002534,
+      "reverse": -0.008446,
+      "forward_significant": false,
+      "reverse_significant": false
+    },
+    {
+      "pair": "4<->26",
+      "forward": 0.028716,
+      "reverse": 0.004223,
+      "forward_significant": false,
+      "reverse_significant": false
+    },
+    {
+      "pair": "12<->4",
+      "forward": -0.050676,
+      "reverse": -0.078547,
+      "forward_significant": true,
+      "reverse_significant": true
+    },
+    {
+      "pair": "12<->20",
+      "forward": -0.060811,
+      "reverse": 0.038007,
+      "forward_significant": true,
+      "reverse_significant": true
+    },
+    {
+      "pair": "12<->26",
+      "forward": 0.058277,
+      "reverse": 0.076014,
+      "forward_significant": true,
+      "reverse_significant": true
+    },
+    {
+      "pair": "20<->4",
+      "forward": -0.008446,
+      "reverse": -0.002534,
+      "forward_significant": false,
+      "reverse_significant": false
+    },
+    {
+      "pair": "20<->12",
+      "forward": 0.038007,
+      "reverse": -0.060811,
+      "forward_significant": true,
+      "reverse_significant": true
+    },
+    {
+      "pair": "20<->26",
+      "forward": 0.211993,
+      "reverse": -0.273649,
+      "forward_significant": true,
+      "reverse_significant": true
+    },
+    {
+      "pair": "26<->4",
+      "forward": 0.004223,
+      "reverse": 0.028716,
+      "forward_significant": false,
+      "reverse_significant": false
+    },
+    {
+      "pair": "26<->12",
+      "forward": 0.076014,
+      "reverse": 0.058277,
+      "forward_significant": true,
+      "reverse_significant": true
+    },
+    {
+      "pair": "26<->20",
+      "forward": -0.273649,
+      "reverse": 0.211993,
+      "forward_significant": true,
+      "reverse_significant": true
+    }
+  ],
+  "interpretation_caveats": [
+    "A failed transfer does NOT show the feature is absent from the target layer; it is consistent with several alternatives (representation in a rotated basis, dose still too small, effect below the resolution of a 2-way argmax task).",
+    "A successful transfer shows the direction has behavioural effect at the target layer. It does NOT show the target layer encodes a uniquely interpretable feature."
+  ],
+  "z": 8.0,
+  "heatmap_preference_change": {
+    "4": {
+      "4": -0.201014,
+      "12": -0.078547,
+      "20": -0.002534,
+      "26": 0.028716
+    },
+    "12": {
+      "4": -0.050676,
+      "12": -0.152027,
+      "20": -0.060811,
+      "26": 0.058277
+    },
+    "20": {
+      "4": -0.008446,
+      "12": 0.038007,
+      "20": -0.909628,
+      "26": 0.211993
+    },
+    "26": {
+      "4": 0.004223,
+      "12": 0.076014,
+      "20": -0.273649,
+      "26": -0.624155
+    }
+  },
+  "heatmap_accuracy_change": {
+    "4": {
+      "4": 0.027027,
+      "12": 0.013514,
+      "20": 0.0,
+      "26": 0.0
+    },
+    "12": {
+      "4": 0.013514,
+      "12": 0.013514,
+      "20": 0.0,
+      "26": 0.013514
+    },
+    "20": {
+      "4": 0.0,
+      "12": 0.0,
+      "20": -0.135135,
+      "26": 0.027027
+    },
+    "26": {
+      "4": 0.013514,
+      "12": 0.027027,
+      "20": 0.027027,
+      "26": 0.013514
+    }
+  },
+  "figure": "/home/shrutiw/causalab/research/results/transfer_analysis/figures/transfer_heatmap.png"
+}

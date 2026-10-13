@@ -1,0 +1,19 @@
+{
+  "model_key": "Qwen/Qwen2.5-1.5B-Instruct",
+  "model_revision": "main",
+  "dtype": "bf16",
+  "data_root": "research/data",
+  "construction_dataset": "mcqa_steering/construction",
+  "calibration_dataset": "mcqa_steering/calibration",
+  "evaluation_dataset": "mcqa_steering/evaluation",
+  "seed": 42,
+  "layers": [4, 12, 20, 26],
+  "token_position": {"index": -1},
+  "normalize_direction": true,
+  "alphas": [-2.0, -1.0, 0.0, 1.0, 2.0],
+  "output_dir": "research/results",
+  "require_label_change": true,
+  "group_key": "color",
+  "split_fractions": [0.5, 0.2, 0.3],
+  "allow_full_sweep": false
+}

@@ -1,0 +1,112 @@
+{
+  "status": "held-out evaluation complete \u2014 28 layers, both arms, one pass",
+  "supersedes": "dense_results.json (calibration split only)",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "num_layers": 28,
+  "hidden_size": 1536,
+  "split": "evaluation (118 prompts), run ONCE after the configuration was frozen",
+  "arms": [
+    "real (per-layer mean-difference direction)",
+    "control (norm-matched random direction)"
+  ],
+  "strength_grid": [
+    -8.0,
+    -4.0,
+    0.0,
+    4.0,
+    8.0
+  ],
+  "runs": "56 (28 layers x 2 arms), 25/25 cells eligible each, zero refusals",
+  "sanity_checks": {
+    "zero_strength_accuracy_exact": true,
+    "max_zero_strength_preference_deviation": 0.002648,
+    "deviation_explanation": "one bf16 ulp on near-tied prompts; float reduction order, not intervention leakage",
+    "output_validity": 1.0,
+    "total_ineligible_rows": 0,
+    "baseline_accuracy": 0.872881,
+    "baseline_identical_across_all_cells": true
+  },
+  "two_bugs_found_and_fixed": {
+    "write_collision": {
+      "symptom": "control arm's alpha sweep silently never bound; its margin was identical at every strength",
+      "cause": "two writes (real + control) targeting the same block_output module in one document; the first site's hook won for both",
+      "fix": "one arm per document, one site and one write each",
+      "verified": "both arms now respond to alpha and both hit baseline exactly at alpha=0"
+    },
+    "baseline_cell_lookup": {
+      "symptom": "zero-strength control appeared violated by up to 0.53 logits",
+      "cause": "build_table keyed the reference cell on min(alpha) = -8.0 instead of the genuine 0.0; the baseline is duplicated at every alpha so the label was wrong",
+      "fix": "pin the reference to alpha == 0.0",
+      "regression_test": "test_zero_alpha_is_not_misbounded"
+    }
+  },
+  "results": {
+    "A_effectiveness_vs_depth": {
+      "friedman_across_28_layers_at_matched_strength": {
+        "statistic": null,
+        "p": 1.69e-107,
+        "n_paired_prompts": 118
+      },
+      "pairwise_layer_comparisons_significant_after_holm": "164 of 378",
+      "reading": "layer is a first-order determinant of steering effect, significant at matched dose"
+    },
+    "B_positive_vs_negative": {
+      "positive_dominates_at_n_layers": 18,
+      "negative_dominates_at_n_layers": 10,
+      "per_layer_significant_after_holm": 15,
+      "overall_sign_test_p": 0.185,
+      "reading": "no significant overall asymmetry on the held-out split, though 15 of 28 layers differ individually after Holm correction. The calibration-split asymmetry did NOT replicate cleanly."
+    },
+    "C_strength_response": "monotone in strength for mid-late layers; near-flat for layers 0-2",
+    "D_baseline_vs_intervention": "zero-strength coincides with baseline exactly; original-answer accuracy degrades at high dose in mid-late layers",
+    "E_effects_with_ci": {
+      "strength": 8.0,
+      "n_layers": 28,
+      "n_layers_ci_excludes_zero": 21,
+      "fraction": 0.75
+    }
+  },
+  "control_comparison": {
+    "_note": "real vs control at alpha=+8, same layer, same norm-matched effective dose",
+    "n_layers_real_larger_absolute_effect": 15,
+    "n_layers_real_same_direction": 18,
+    "n_layers": 28,
+    "largest_separation_layer": 16,
+    "L16": {
+      "real": -0.5175,
+      "control": -0.152
+    },
+    "L20": {
+      "real": -0.1886,
+      "control": 0.1674
+    },
+    "reading": "The real direction beats a norm-matched random direction at 15/28 layers by absolute magnitude and 18/28 by direction. This is partial evidence that the effect is attributable to the direction rather than to perturbation of that magnitude, but the control is not negligible at several layers, so the two are not cleanly separated at n=118. An earlier draft of the results file reported 21/28; that figure did not reproduce from the committed table and has been corrected here."
+  },
+  "selection_discipline": {
+    "pre_registered_from_calibration": {
+      "layer": 21,
+      "strength": -35.6,
+      "effect": -3.37
+    },
+    "evaluation_leader": {
+      "layer": 16,
+      "strength": 8.0,
+      "preference_change": -0.5175,
+      "ci": [
+        -0.5906,
+        -0.4412
+      ]
+    },
+    "agreement": false,
+    "reading": "the layer with the largest calibration-split effect (L21) is NOT the evaluation-split leader (L16). Selection was made on calibration, so this discrepancy is reported rather than resolved by re-picking. It is the clearest evidence that a single-layer claim is not stable across splits at this sample size."
+  },
+  "limitations": [
+    "118 evaluation prompts; granularity 0.0085, and effect sizes are 0.05-0.5 logits, so CIs are wide",
+    "single model, single 2-way MCQA task, one component (block_output), one position (last token)",
+    "the direction is a mean difference between two answer positions; its causal validity is assumed, not established",
+    "counterfactual-answer rate stays low; the primary measure is logit margin, not task accuracy",
+    "layer 0 is degenerate (sigma_within 0.053)",
+    "sign asymmetry did not replicate from calibration to evaluation"
+  ],
+  "honest_summary": "Layer dependence is real and large (p=1.7e-107 across 28 layers). The real direction exceeds a norm-matched random control at 15/28 layers by magnitude and 18/28 by direction, which is partial rather than clean separation at n=118. What is NOT established: a specific best layer (calibration said L20, evaluation says L16), and the positive/negative asymmetry seen on calibration did not survive to held-out."
+}

@@ -1,0 +1,49 @@
+{
+  "status": "pilot executed",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "num_layers": 28,
+  "hidden_size": 1536,
+  "dataset": "MCQA, group-disjoint by color",
+  "splits": {
+    "construction_rows": 189,
+    "calibration_rows": 74,
+    "evaluation_rows": 118,
+    "held_out_evaluation_run": false
+  },
+  "layers": [4, 12, 20, 26],
+  "alphas": [-2.0, -1.0, 0.0, 1.0, 2.0],
+  "direction": "unit-norm mean difference, group A (101 rows) minus group B (88 rows)",
+  "measured": {
+    "zero_strength_check": {
+      "max_abs_deviation": 0.0,
+      "passed_all_layers": true,
+      "meaning": "alpha=0 reproduces the unmodified baseline exactly at every layer"
+    },
+    "intervention_fires": {
+      "max_abs_logit_change_at_alpha_2": 0.359375,
+      "hooked_noop_logit_change": 0.0,
+      "repeat_run_logit_change": 0.0,
+      "meaning": "add_scaled propagates to logits; the hook is deterministic; a no-op hook is inert"
+    },
+    "baseline_accuracy": 0.919,
+    "baseline_identical_across_layers": true,
+    "original_answer_rate_range": [0.919, 0.932],
+    "cf_answer_rate_all_cells": 0.0,
+    "logit_margin_range": [9.378, 9.432],
+    "steering_effect": "null at |alpha| <= 2"
+  },
+  "direction_norm_ratios": {
+    "_note": "raw |v| divided by mean activation norm at the same layer",
+    "4": 0.025,
+    "12": 0.037,
+    "20": 0.226,
+    "26": 0.114
+  },
+  "interpretation": {
+    "primary": "No behavioural effect was detectable at any pilot layer for |alpha| <= 2. The margin moved by at most 0.027 logits against a ~9.4 baseline margin.",
+    "mechanism": "At |alpha|=2 the unit direction perturbs the residual stream by 0.7-5.5% of its local norm. That is below the threshold needed to change the argmax over a 2-way answer.",
+    "consequence": "A raw alpha sweep on a normalized direction does not equalize effective dose across layers. Layer 26 receives 7.5x less relative perturbation than layer 4 at the same alpha.",
+    "next_step": "Calibrate alpha per layer against the measured margin response, then re-sweep. A shared alpha grid cannot answer the layer-dependence question on its own.",
+    "not_tested": "H3 (held-out generalization) and H4 (cross-layer transfer) were not run. The evaluation split was deliberately left untouched."
+  }
+}

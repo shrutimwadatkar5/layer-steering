@@ -1,0 +1,19 @@
+{
+  "protocol": "No layer was selected using the evaluation split. Direction construction used the construction split; strength calibration and the effect-size ranking used the calibration split. The evaluation split was run once, after the configuration was frozen.",
+  "pre_registered_from_calibration": {
+    "layer": 21,
+    "strength": -35.60449453277213,
+    "effect": -3.369932,
+    "n_layers_considered": 28,
+    "source": "calibration split (dense 28-layer sweep)"
+  },
+  "evaluation_leader": {
+    "layer": 16,
+    "strength": 8.0,
+    "preference_change": -0.517479,
+    "ci": [
+      -0.590572,
+      -0.441208
+    ]
+  }
+}

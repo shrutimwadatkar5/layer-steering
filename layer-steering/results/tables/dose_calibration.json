@@ -1,0 +1,171 @@
+{
+  "config": {
+    "model_key": "Qwen/Qwen2.5-1.5B-Instruct",
+    "model_revision": "main",
+    "dtype": "bf16",
+    "data_root": "research/data",
+    "construction_dataset": "mcqa_steering/construction",
+    "calibration_dataset": "mcqa_steering/calibration",
+    "evaluation_dataset": "mcqa_steering/evaluation",
+    "seed": 42,
+    "layers": [
+      4,
+      12,
+      20,
+      26
+    ],
+    "token_position": {
+      "index": -1
+    },
+    "normalize_direction": true,
+    "alphas": [
+      -2.0,
+      -1.0,
+      0.0,
+      1.0,
+      2.0
+    ],
+    "output_dir": "research/results",
+    "artifacts_dir": null,
+    "require_label_change": true,
+    "group_key": "color",
+    "split_fractions": [
+      0.5,
+      0.2,
+      0.3
+    ],
+    "allow_full_sweep": false
+  },
+  "method": "alpha = z * sigma_within, where sigma_within is the pooled within-group standard deviation of the activation projected onto the layer's steering direction. z is therefore a within-group z-score and means the same dose at every layer.",
+  "supersedes": "the first pilot swept a shared alpha on a unit-norm direction, which reached only ~0.05 sigma at layer 26 and produced a null",
+  "layers": [
+    {
+      "layer": 4,
+      "n_a": 101,
+      "n_b": 88,
+      "mean_projection_a": 3.486269632192463,
+      "mean_projection_b": 2.577582173967506,
+      "raw_separation": 0.9086874582249567,
+      "sigma_within": 2.831122534227992,
+      "cohens_d": 0.3209636627306006,
+      "alpha_per_z": 2.831122534227992,
+      "sigma_note": "alpha = z * sigma_within makes z a within-group z-score along the steering axis, so the same z means the same relative dose at every layer",
+      "z_grid": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        6.0,
+        8.0,
+        12.0
+      ],
+      "alpha_grid": [
+        0.0,
+        2.831122534227992,
+        5.662245068455984,
+        8.493367602683977,
+        11.324490136911969,
+        16.986735205367953,
+        22.648980273823938,
+        33.97347041073591
+      ]
+    },
+    {
+      "layer": 12,
+      "n_a": 101,
+      "n_b": 88,
+      "mean_projection_a": 9.987398781405304,
+      "mean_projection_b": 8.184424320172658,
+      "raw_separation": 1.8029744612326457,
+      "sigma_within": 1.992294008500265,
+      "cohens_d": 0.9049740919463323,
+      "alpha_per_z": 1.992294008500265,
+      "sigma_note": "alpha = z * sigma_within makes z a within-group z-score along the steering axis, so the same z means the same relative dose at every layer",
+      "z_grid": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        6.0,
+        8.0,
+        12.0
+      ],
+      "alpha_grid": [
+        0.0,
+        1.992294008500265,
+        3.98458801700053,
+        5.976882025500795,
+        7.96917603400106,
+        11.95376405100159,
+        15.93835206800212,
+        23.90752810200318
+      ]
+    },
+    {
+      "layer": 20,
+      "n_a": 101,
+      "n_b": 88,
+      "mean_projection_a": 8.355353406490389,
+      "mean_projection_b": -9.834384332433165,
+      "raw_separation": 18.189737738923554,
+      "sigma_within": 2.759159720002455,
+      "cohens_d": 6.592491767351319,
+      "alpha_per_z": 2.759159720002455,
+      "sigma_note": "alpha = z * sigma_within makes z a within-group z-score along the steering axis, so the same z means the same relative dose at every layer",
+      "z_grid": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        6.0,
+        8.0,
+        12.0
+      ],
+      "alpha_grid": [
+        0.0,
+        2.759159720002455,
+        5.51831944000491,
+        8.277479160007365,
+        11.03663888000982,
+        16.55495832001473,
+        22.07327776001964,
+        33.10991664002946
+      ]
+    },
+    {
+      "layer": 26,
+      "n_a": 101,
+      "n_b": 88,
+      "mean_projection_a": 95.97827466283249,
+      "mean_projection_b": 64.90001684218902,
+      "raw_separation": 31.078257820643472,
+      "sigma_within": 6.189610792185971,
+      "cohens_d": 5.021035871896499,
+      "alpha_per_z": 6.189610792185971,
+      "sigma_note": "alpha = z * sigma_within makes z a within-group z-score along the steering axis, so the same z means the same relative dose at every layer",
+      "z_grid": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        6.0,
+        8.0,
+        12.0
+      ],
+      "alpha_grid": [
+        0.0,
+        6.189610792185971,
+        12.379221584371942,
+        18.568832376557914,
+        24.758443168743884,
+        37.13766475311583,
+        49.51688633748777,
+        74.27532950623166
+      ]
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "status": "cross-layer transfer executed — 4x4 grid, validated before scaling",
+  "experiment": "cross_layer_transfer",
+  "not_pooled_with_layerwise": true,
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "num_layers": 28,
+  "hidden_size": 1536,
+  "split": "calibration (74 prompts), fixed across every cell",
+  "source_layers": [4, 12, 20, 26],
+  "target_layers": [4, 12, 20, 26],
+  "cells": 16,
+  "strength_convention": "alpha_ij(z) = z * sigma_ij, sigma_ij = pooled within-group sd of the TARGET layer's activations projected onto the SOURCE direction (construction split). Cells compared at matched z = +8, not matched raw alpha.",
+  "direction_normalization": "each source direction is unit-norm, matching the layer-wise experiment",
+  "requirement_8_dimension_check": {
+    "all_directions_width": 1536,
+    "compatible": true,
+    "enforced_by": "check_dimension_compatibility, which raises on mismatch because Causalab would silently broadcast"
+  },
+  "requirement_9_coordinate_systems": {
+    "measured_cosine_between_source_directions": {
+      "4_12": 0.133, "4_20": 0.009, "4_26": 0.013,
+      "12_20": 0.053, "12_26": 0.020, "20_26": 0.451
+    },
+    "within_group_sigma_by_source_along_each_target": {
+      "_note": "rows = target, cols = source; diagonal is the cell's own direction",
+      "t4":  {"4": 2.8311, "12": 0.4740, "20": 0.1563, "26": 0.1741},
+      "t12": {"4": 0.5513, "12": 1.9923, "20": 0.2118, "26": 0.4048},
+      "t20": {"4": 0.5285, "12": 0.8337, "20": 2.7592, "26": 1.5074},
+      "t26": {"4": 1.1515, "12": 1.2120, "20": 2.3648, "26": 6.1896}
+    },
+    "conclusion": "residual streams are the same width but the directions are near-orthogonal across depth, and the target layer varies 2-20x less along a foreign axis. Per-cell dose calibration is therefore required; a shared alpha would have delivered a tiny off-diagonal dose and produced an uninterpretable null."
+  },
+  "sanity_checks": {
+    "zero_strength_max_abs_delta": 0.0,
+    "zero_strength_exact_noop_all_16_cells": true,
+    "baseline_accuracy": 0.918919,
+    "baseline_identical_across_cells": true,
+    "n_prompts_per_cell": 74
+  },
+  "results_at_z_plus_8": {
+    "same_layer": {"n": 4, "mean_abs_effect": 0.471706, "n_significant": 4},
+    "cross_layer": {"n": 12, "mean_abs_effect": 0.074324, "n_significant": 8},
+    "same_layer_diagonal": {"4": -0.201, "12": -0.152, "20": -0.910, "26": -0.624},
+    "cross_layer_range": [-0.274, 0.212],
+    "reading": "same-layer effects are ~6.3x larger in mean absolute magnitude than cross-layer. Every diagonal cell is significant; 8 of 12 off-diagonal cells are also significant but with much smaller effects."
+  },
+  "outcomes": {
+    "successful_transfer": 3,
+    "failed_transfer_possible_misalignment": 4,
+    "intervention_induced_degradation": 1,
+    "inconclusive": 8,
+    "successful_cells": ["4->4", "12->12", "26->26"],
+    "failed_cells": ["4->20", "4->26", "20->4", "26->4"],
+    "degradation_cell": "20->20"
+  },
+  "directional_asymmetry": {
+    "20_26_pair": {
+      "forward_20_to_26": 0.212,
+      "reverse_26_to_20": -0.274,
+      "cosine": 0.451,
+      "reading": "the only source pair with meaningful cosine. The two directions transfer to each other with OPPOSITE sign, consistent with shared structure expressed in a rotated basis rather than a shared coordinate."
+    },
+    "early_to_late_fails_both_ways": "4->26 = +0.029 and 26->4 = +0.004, both null; cos(v4,v26) = 0.013"
+  },
+  "interpretation": {
+    "successful_behavioural_transfer": "the 4 same-layer references plus 8 significant off-diagonal cells, all smaller than their same-layer reference",
+    "failed_transfer_possible_misalignment": "4 cells (4->20, 4->26, 20->4, 26->4) show no detectable effect at calibrated dose. These are the pairs with the lowest direction cosine (0.009-0.013). This is CONSISTENT with misalignment but does NOT show the feature is absent at those targets.",
+    "intervention_induced_degradation": "20->20 dropped original-answer accuracy by 0.135 with no rise in target-answer rate: the strongest same-layer intervention disrupts the computation without redirecting it",
+    "inconclusive": "8 cells are significant but below half the same-layer reference magnitude, so they are reported as partial rather than successful",
+    "explicit_limits": [
+      "A failed transfer does not show the feature is absent from the target layer.",
+      "A successful transfer shows behavioural effect, not a uniquely interpretable feature."
+    ]
+  },
+  "bugs_found_and_fixed": {
+    "z_axis_mismatch": {
+      "symptom": "only 1 of 16 cells analysed",
+      "cause": "collect_cells selected each cell's largest raw alpha; because dose is calibrated per cell, raw alphas are unrelated across the grid, so cells were compared at different z",
+      "fix": "index by z, recovering it as alpha/sigma_ij; selection and comparison happen in z-space"
+    },
+    "z_match_tolerance": {
+      "symptom": "z=8 matched 0 cells",
+      "cause": "sigma_ij is persisted rounded to 8 decimals, so the recovered z differs from the requested 8 in the last bits; exact comparison dropped every cell",
+      "fix": "match z with a 1e-3 tolerance and pick the nearest"
+    }
+  },
+  "limitations": [
+    "4x4 grid only; an exhaustive 28x28 sweep was deliberately not launched",
+    "74 calibration prompts; CIs are wide and 8 cells land in 'inconclusive' partly because of that",
+    "single model, single task, one component, one token position",
+    "no norm-matched random control arm in this experiment, unlike the layer-wise one, so a cross-layer effect cannot yet be separated from generic perturbation of that size",
+    "effect metric is logit margin; target-answer rate is ~0 in every cell, so behavioural transfer is not observed even where representational transfer is"
+  ],
+  "next_steps": [
+    "add a norm-matched random control arm per cell, as done for the layer-wise experiment",
+    "densify the grid around the 20/26 pair, the only region showing off-diagonal structure",
+    "scale to more layers only after the control arm is in place",
+    "test whether the null pairs are misalignment or insufficient dose by sweeping z upward at 4->20"
+  ]
+}
